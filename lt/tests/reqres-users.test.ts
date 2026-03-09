@@ -11,6 +11,7 @@ const targetUrl = 'https://reqres.in/api/users?page=1';
 const apiKey = __ENV['REQRES_API_KEY'] ?? '';
 const unexpectedResponseLogLimit = 3;
 let hasLoggedUnexpectedResponse = false;
+let hasLoggedResponseSample = false;
 const preAllocatedVUs = 100;
 const maxVUs = 200;
 
@@ -51,11 +52,25 @@ export default function (): void {
     },
   });
 
+  const bodyPreview =
+    typeof response.body === 'string' ? response.body.replace(/\s+/gu, ' ').slice(0, 240) : '';
+
+  if (!hasLoggedResponseSample && exec.vu.idInTest === 1 && exec.scenario.iterationInTest === 0) {
+    hasLoggedResponseSample = true;
+
+    console.log(
+      JSON.stringify({
+        type: 'response_sample',
+        status: response.status,
+        url: response.url,
+        contentType: response.headers['Content-Type'] ?? response.headers['content-type'] ?? 'unknown',
+        bodyPreview,
+      }),
+    );
+  }
+
   if (response.status !== 200 && !hasLoggedUnexpectedResponse && exec.vu.idInTest <= unexpectedResponseLogLimit) {
     hasLoggedUnexpectedResponse = true;
-
-    const bodyPreview =
-      typeof response.body === 'string' ? response.body.replace(/\s+/gu, ' ').slice(0, 240) : '';
 
     console.error(
       JSON.stringify({
