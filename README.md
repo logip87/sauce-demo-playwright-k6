@@ -80,6 +80,47 @@ Main test files:
 - GitHub Pages publishing for Allure and k6 reports
 - Allure history preserved for trend reporting
 
+## Reflection & Seniority Check
+
+### How would you integrate Playwright tests into CI/CD?
+
+- Run lint, typecheck, and Playwright tests in GitHub Actions on every pull request
+- Keep E2E sharded if the suite grows, but publish one combined HTML/Allure report for triage
+- Run a smaller smoke subset on every PR and the fuller regression suite on merges to `main` or nightly
+- Store screenshots, traces, videos, and HTML reports as artifacts so failures are actionable
+
+### How would you notify the team (Slack/Teams) about failures or regressions?
+
+- Send a workflow notification only on failure or when a previously green suite starts failing again
+- Include the branch, commit, failed job, direct workflow link, and the first useful artifact/report link
+- Keep the message short so the team can jump from chat straight into the failure details
+
+### What observability metrics would you include in an end-to-end quality dashboard?
+
+- Pass/fail rate and flaky test rate over time
+- Test duration trends and slowest scenarios
+- Failure reasons grouped by area such as login, cart, checkout, or environment issues
+- Browser/environment coverage
+- Release-over-release defect escape rate and open production incidents tied to missed coverage
+
+### How would you decide what to automate?
+
+- High-value, repeatable, business-critical flows such as login, checkout, and order confirmation
+- Stable areas where assertions are clear and maintenance cost stays lower than manual effort
+- Scenarios that are risky to ship broken and are needed often in CI regression
+
+### What would you not automate?
+
+- One-off exploratory checks better suited to human observation
+- Very unstable flows still changing heavily each sprint
+- Low-risk scenarios where test maintenance would cost more than the value of automation
+
+### What belongs to performance vs functional testing?
+
+- Functional tests verify correctness, user flows, validation, and business rules at normal usage levels
+- Performance tests verify response times, throughput, error rates, and system behavior under sustained or peak load
+- If the main question is "does it work?" it is functional; if the main question is "does it still work under load?" it is performance
+
 ## Useful Extra Commands
 
 ```bash
