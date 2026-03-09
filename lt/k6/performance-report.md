@@ -13,11 +13,11 @@
 
 | Metric | Value |
 | --- | --- |
-| P50 | 4.37 ms |
-| P95 | 147.51 ms |
-| P99 | 155.83 ms |
+| P50 | 6.96 ms |
+| P95 | 98.16 ms |
+| P99 | 148.53 ms |
 | Error rate | 100.00% |
-| Throughput | 100.00 req/s |
+| Throughput | 99.99 req/s |
 | Dropped iterations | 0 |
 
 ## Interpretation
