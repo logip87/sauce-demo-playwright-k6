@@ -43,6 +43,8 @@ export const specialCaseUsers = [
   users.visual,
 ] as const;
 
+export const successfulLoginUsers = [users.standard, ...specialCaseUsers] as const;
+
 export const loginErrorMessages = {
   lockedOut: 'Sorry, this user has been locked out.',
   invalidCredentials: 'Username and password do not match any user in this service',

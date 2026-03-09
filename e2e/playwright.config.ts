@@ -10,7 +10,7 @@ export default defineConfig({
     timeout: 5_000,
   },
   forbidOnly: isCI,
-  retries: isCI ? 2 : 0,
+  retries: 1,
   ...(isCI ? { workers: 2 } : {}),
   reporter: [
     ['list'],
@@ -35,7 +35,7 @@ export default defineConfig({
     headless: true,
     trace: 'retain-on-failure',
     screenshot: 'only-on-failure',
-    video: 'retain-on-failure',
+    video: 'off',
     testIdAttribute: 'data-test',
   },
   projects: [
