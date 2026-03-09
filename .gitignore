@@ -1,0 +1,12 @@
+node_modules/
+dist/
+coverage/
+
+e2e/artifacts/
+lt/artifacts/
+
+.DS_Store
+Thumbs.db
+
+!.vscode/settings.json
+!.vscode/extensions.json

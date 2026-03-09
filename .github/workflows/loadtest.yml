@@ -1,0 +1,64 @@
+name: load-test
+
+on:
+  workflow_dispatch:
+    inputs:
+      publish_to_grafana_cloud:
+        description: Publish results to Grafana Cloud k6
+        required: false
+        default: false
+        type: boolean
+
+permissions:
+  contents: read
+
+jobs:
+  k6:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+
+      - name: Install dependencies
+        run: npm install
+
+      - name: Setup k6
+        uses: grafana/setup-k6-action@v1
+
+      - name: Typecheck load-test sources
+        run: npm run typecheck --workspace lt
+
+      - name: Run k6 locally
+        if: ${{ !inputs.publish_to_grafana_cloud }}
+        run: npm run lt:test
+        env:
+          REQRES_API_KEY: ${{ secrets.REQRES_API_KEY }}
+
+      - name: Run k6 and publish to Grafana Cloud
+        if: ${{ inputs.publish_to_grafana_cloud }}
+        run: npm run lt:test:grafana
+        env:
+          K6_CLOUD_TOKEN: ${{ secrets.K6_CLOUD_TOKEN }}
+          REQRES_API_KEY: ${{ secrets.REQRES_API_KEY }}
+
+      - name: Upload load-test artifacts
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: lt-artifacts
+          path: lt/artifacts/k6
+          if-no-files-found: warn
+
+      - name: Publish markdown summary to workflow run
+        if: always()
+        shell: bash
+        run: |
+          if [ -f lt/artifacts/k6/performance-report.md ]; then
+            cat lt/artifacts/k6/performance-report.md >> "$GITHUB_STEP_SUMMARY"
+          fi

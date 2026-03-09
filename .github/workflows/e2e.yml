@@ -1,0 +1,124 @@
+name: e2e
+
+on:
+  pull_request:
+  push:
+    branches:
+      - main
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: e2e-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+
+      - name: Install dependencies
+        run: npm install
+
+      - name: Install Playwright browser
+        run: npx playwright install --with-deps chromium
+
+      - name: Lint
+        run: npm run lint
+
+      - name: Typecheck
+        run: npm run typecheck
+
+      - name: Run Playwright tests
+        run: npm run e2e:test
+        env:
+          CI: 'true'
+
+      - name: Upload e2e artifacts
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: e2e-artifacts
+          path: e2e/artifacts
+          if-no-files-found: warn
+
+  publish-allure:
+    if: always() && github.event_name != 'pull_request'
+    needs:
+      - test
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deploy.outputs.page_url }}
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Checkout existing Pages branch
+        uses: actions/checkout@v4
+        continue-on-error: true
+        with:
+          ref: gh-pages
+          path: .gh-pages
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+
+      - name: Install dependencies
+        run: npm install
+
+      - name: Download e2e artifacts
+        uses: actions/download-artifact@v4
+        with:
+          name: e2e-artifacts
+          path: e2e/artifacts
+
+      - name: Restore Allure history
+        shell: bash
+        run: |
+          mkdir -p e2e/artifacts/allure-history
+          if [ -f .gh-pages/allure-history/history.jsonl ]; then
+            cp .gh-pages/allure-history/history.jsonl e2e/artifacts/allure-history/history.jsonl
+          fi
+
+      - name: Generate Allure report
+        run: npm run allure:generate --workspace e2e
+
+      - name: Prepare GitHub Pages artifact
+        shell: bash
+        run: |
+          mkdir -p site/allure-history
+          cp -R e2e/artifacts/allure-report/. site/
+          if [ -f e2e/artifacts/allure-history/history.jsonl ]; then
+            cp e2e/artifacts/allure-history/history.jsonl site/allure-history/history.jsonl
+          fi
+          touch site/.nojekyll
+
+      - name: Configure GitHub Pages
+        uses: actions/configure-pages@v5
+
+      - name: Upload Pages artifact
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: site
+
+      - name: Deploy Pages artifact
+        id: deploy
+        uses: actions/deploy-pages@v4

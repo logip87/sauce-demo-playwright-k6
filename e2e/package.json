@@ -1,0 +1,18 @@
+{
+  "name": "e2e",
+  "private": true,
+  "version": "0.1.0",
+  "scripts": {
+    "test": "playwright test",
+    "test:headed": "playwright test --headed",
+    "report:html": "playwright show-report artifacts/playwright-report",
+    "allure:generate": "allure generate ./artifacts/allure-results --clean",
+    "report:allure": "npm run allure:generate && allure open artifacts/allure-report",
+    "typecheck": "tsc -p tsconfig.json --noEmit"
+  },
+  "devDependencies": {
+    "@playwright/test": "^1.52.0",
+    "allure": "^3.2.1",
+    "allure-playwright": "^3.2.1"
+  }
+}

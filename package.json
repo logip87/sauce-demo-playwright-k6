@@ -1,0 +1,37 @@
+{
+  "name": "techlt-qa-automation-performance-assessment",
+  "private": true,
+  "version": "0.1.0",
+  "description": "Senior Quality Engineer assessment scaffold with Playwright and k6.",
+  "engines": {
+    "node": ">=22.0.0"
+  },
+  "workspaces": [
+    "e2e",
+    "lt"
+  ],
+  "scripts": {
+    "lint": "eslint .",
+    "lint:fix": "eslint . --fix",
+    "format": "prettier . --check",
+    "format:write": "prettier . --write",
+    "typecheck": "npm run typecheck --workspace e2e && npm run typecheck --workspace lt",
+    "e2e:test": "npm run test --workspace e2e",
+    "e2e:test:headed": "npm run test:headed --workspace e2e",
+    "e2e:report:html": "npm run report:html --workspace e2e",
+    "e2e:report:allure": "npm run report:allure --workspace e2e",
+    "lt:test": "npm run test --workspace lt",
+    "lt:test:grafana": "npm run test:grafana --workspace lt"
+  },
+  "devDependencies": {
+    "@types/node": "^22.13.14",
+    "@typescript-eslint/eslint-plugin": "^8.26.1",
+    "@typescript-eslint/parser": "^8.26.1",
+    "eslint": "^9.22.0",
+    "eslint-config-prettier": "^10.1.1",
+    "eslint-plugin-playwright": "^2.2.2",
+    "globals": "^16.0.0",
+    "prettier": "^3.5.3",
+    "typescript": "^5.8.2"
+  }
+}
