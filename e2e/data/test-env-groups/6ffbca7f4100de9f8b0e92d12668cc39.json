@@ -1,1 +1,1 @@
-{"id":"6ffbca7f4100de9f8b0e92d12668cc39","fullName":"checkout.spec.ts:59:7","name":"requires a postal code before checkout can continue","status":"passed","testResultsByEnv":{"default":"e168e1f00817445142af1340e9c4e449"}}
+{"id":"6ffbca7f4100de9f8b0e92d12668cc39","fullName":"checkout.spec.ts:59:7","name":"requires a postal code before checkout can continue","status":"passed","testResultsByEnv":{"default":"9842c84ec8cbe49f88f7a937e437c5d1"}}

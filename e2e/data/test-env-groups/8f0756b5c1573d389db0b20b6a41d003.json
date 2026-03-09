@@ -1,1 +1,1 @@
-{"id":"8f0756b5c1573d389db0b20b6a41d003","fullName":"inventory.spec.ts:53:5","name":"opens product details and returns to the inventory view","status":"passed","testResultsByEnv":{"default":"4bf98c13a67b61bc3636f9f809f3f01a"}}
+{"id":"8f0756b5c1573d389db0b20b6a41d003","fullName":"inventory.spec.ts:53:5","name":"opens product details and returns to the inventory view","status":"passed","testResultsByEnv":{"default":"26e647c51e532a2e2c6c44adf280c6ba"}}
