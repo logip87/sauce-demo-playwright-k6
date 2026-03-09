@@ -1,5 +1,9 @@
 # TechLT QA Automation & Performance Assessment
 
+## Latest Reports URL
+
+https://logip87.github.io/sauce-demo-playwright-k6/
+
 This repository contains two parts of the assignment:
 
 - `e2e/` for Playwright UI automation on SauceDemo
@@ -66,12 +70,7 @@ Main test files:
 
 - k6 `constant-arrival-rate` scenario for `https://reqres.in/api/users?page=1`
 - Fixed load profile: 100 requests/second for 2 minutes
-- Only `REQRES_API_KEY` is read from the environment
 - Thresholds for response time and failure rate
-- Automatic artifact generation:
-  - `lt/artifacts/k6/summary.json`
-  - `lt/artifacts/k6/performance-report.md`
-  - `lt/artifacts/k6/dashboard.html` when exported in CI
 
 ### CI/CD
 
