@@ -4,6 +4,7 @@ coverage/
 
 e2e/artifacts/
 lt/artifacts/
+artifacts/allure-results/
 
 .DS_Store
 Thumbs.db

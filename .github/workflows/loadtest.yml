@@ -2,12 +2,6 @@ name: load-test
 
 on:
   workflow_dispatch:
-    inputs:
-      publish_to_grafana_cloud:
-        description: Publish results to Grafana Cloud k6
-        required: false
-        default: false
-        type: boolean
 
 permissions:
   contents: read
@@ -49,16 +43,8 @@ jobs:
           fi
 
       - name: Run k6 locally
-        if: ${{ !inputs.publish_to_grafana_cloud }}
         run: npm run lt:test
         env:
-          REQRES_API_KEY: ${{ secrets.REQRES_API_KEY }}
-
-      - name: Run k6 and publish to Grafana Cloud
-        if: ${{ inputs.publish_to_grafana_cloud }}
-        run: npm run lt:test:grafana
-        env:
-          K6_CLOUD_TOKEN: ${{ secrets.K6_CLOUD_TOKEN }}
           REQRES_API_KEY: ${{ secrets.REQRES_API_KEY }}
 
       - name: Upload load-test artifacts

@@ -8,7 +8,6 @@ const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const projectRoot = path.resolve(__dirname, '..');
 const artifactDir = path.join(projectRoot, 'artifacts', 'k6');
 const scriptPath = path.join(projectRoot, 'tests', 'reqres-users.test.ts');
-const useGrafanaCloud = process.argv.includes('--grafana') || Boolean(process.env.K6_CLOUD_TOKEN);
 const targetUrl = process.env.K6_TARGET_URL ?? 'https://reqres.in/api/users?page=1';
 const requiresReqresApiKey = /^https:\/\/reqres\.in\/api\//u.test(targetUrl);
 
@@ -94,9 +93,7 @@ if (requiresReqresApiKey && !process.env.REQRES_API_KEY) {
   process.exit(1);
 }
 
-const commandArgs = useGrafanaCloud
-  ? ['cloud', 'run', '--local-execution', scriptPath]
-  : ['run', scriptPath];
+const commandArgs = ['run', scriptPath];
 
 const result = spawnSync('k6', commandArgs, {
   cwd: projectRoot,

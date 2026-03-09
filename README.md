@@ -1,113 +1,97 @@
 # TechLT QA Automation & Performance Assessment
 
-This repository is structured for the assessment as a clean, two-track QA project:
+This repository contains two parts of the assignment:
 
-- `e2e/` contains Playwright UI automation for SauceDemo.
-- `lt/` contains k6 load testing for the ReqRes users endpoint.
+- `e2e/` for Playwright UI automation on SauceDemo
+- `lt/` for k6 load testing on the ReqRes API
 
-The setup favors deterministic tests, stable selectors, strict TypeScript, and CI-friendly reporting.
+## Setup
 
-## Repository Layout
-
-```text
-.
-|-- .github/workflows/     # CI, Pages deploy, and load-test runner
-|-- .vscode/               # format and lint on save
-|-- e2e/                   # Playwright project
-|-- lt/                    # k6 project
-|-- AGENTS.md              # repo-specific engineering guidance
-|-- eslint.config.mjs
-|-- package.json
-`-- tsconfig.base.json
-```
-
-## Prerequisites
+### Prerequisites
 
 - Node.js 22+
-- npm 10+ or another package-manager workflow that understands npm workspaces
-- Playwright browser binaries: `npx playwright install --with-deps chromium`
-- k6 for local load testing
+- npm
+- Playwright Chromium browser
+- k6 installed locally
+- `REQRES_API_KEY` for the load test against ReqRes
 
-ReqRes API endpoints in this assessment require `REQRES_API_KEY`. Set it locally before running the load test, and add the same value as the GitHub Actions secret `REQRES_API_KEY` so the manual `load-test` workflow can authenticate in CI.
-
-## Install
+### Install
 
 ```bash
 npm install
-npx playwright install --with-deps chromium
+npx playwright install chromium
 ```
 
-## Useful Commands
+### Load-Test Environment Variable
+
+PowerShell:
+
+```powershell
+$env:REQRES_API_KEY="your_api_key"
+```
+
+## Run
+
+E2E:
+
+```bash
+npm run e2e:test
+```
+
+Load test:
+
+```bash
+npm run lt:test
+```
+
+## What Was Implemented
+
+### E2E
+
+- Playwright project in strict TypeScript
+- Page Object Model with reusable pages and fixtures
+- Stable selectors based on SauceDemo `data-test` attributes
+- Coverage for authentication, inventory, cart, checkout, and persona smoke flows
+- Failure artifacts with Playwright HTML report, screenshots, traces, and Allure results
+
+Main test files:
+
+- `e2e/tests/auth.spec.ts`
+- `e2e/tests/inventory.spec.ts`
+- `e2e/tests/cart.spec.ts`
+- `e2e/tests/checkout.spec.ts`
+- `e2e/tests/persona-smoke.spec.ts`
+
+### Load Testing
+
+- k6 steady-state scenario for `https://reqres.in/api/users?page=1`
+- Configurable runtime through environment variables such as VUs, duration, target URL, and target RPS
+- Thresholds for response time and failure rate
+- Automatic artifact generation:
+  - `lt/artifacts/k6/summary.json`
+  - `lt/artifacts/k6/performance-report.md`
+  - `lt/artifacts/k6/dashboard.html`
+
+### CI/CD
+
+- GitHub Actions workflow for E2E on pull requests, pushes to `main`, and manual runs
+- Separate manual workflow for load testing
+- Artifact upload for both tracks
+- GitHub Pages publishing for Allure and k6 reports
+- Allure history preserved for trend reporting
+
+## Useful Extra Commands
 
 ```bash
 npm run lint
 npm run typecheck
-npm run e2e:test
 npm run e2e:test:headed
 npm run e2e:report:html
 npm run e2e:report:allure
-npm run lt:test
-npm run lt:test:grafana
 ```
 
-`npm run lt:test:grafana` publishes the same scenario to Grafana Cloud k6 when `K6_CLOUD_TOKEN` is available.
+## Notes
 
-`npm run lt:test` writes:
-
-- `lt/artifacts/k6/summary.json`
-- `lt/artifacts/k6/performance-report.md`
-- `lt/artifacts/k6/dashboard.html`
-
-The GitHub Pages site publishes a shared report hub at the repository Pages URL, with:
-
-- Playwright Allure under `/e2e/`
-- k6 HTML dashboard under `/lt/k6/`
-
-## Design Decisions
-
-- Page Object Model: locators are declared once as `readonly` properties, then reused in action methods and assertions.
-- Stable locators first: Playwright is configured to treat SauceDemo's `data-test` attribute as the test id source.
-- Fixtures over inheritance: reusable page-object wiring lives in a custom Playwright fixture.
-- No hard sleeps: assertions use Playwright's auto-waiting and web-first expectations.
-- Separate folders by testing concern: UI automation and load testing evolve independently, but share repository standards.
-- Reporting for humans and CI: Playwright HTML supports fast triage, while Allure provides GitHub Pages hosting with preserved history.
-
-## CI/CD Approach
-
-Playwright runs on pull requests and on pushes to `main`. The workflow uploads artifacts on every run and deploys the Allure v3 report to GitHub Pages for non-PR events.
-
-Load testing is a manual pipeline by default. That is intentional: the target is a shared third-party endpoint, so steady-state tests should be opt-in rather than triggered on every commit. When the workflow finishes with an exported dashboard, it publishes the latest k6 HTML report to the shared GitHub Pages site without overwriting the e2e report.
-
-## Failure Notifications
-
-For team notifications, I would send a compact Slack or Teams message containing:
-
-- workflow name and branch
-- failing test or threshold name
-- direct link to the GitHub Actions run
-- direct link to the Playwright HTML or Allure report
-- first actionable failure detail such as the assertion, screenshot, or trace
-
-That keeps noise low while making triage fast.
-
-## Quality Dashboard Signals
-
-An end-to-end quality dashboard should include:
-
-- build health and flaky-test rate
-- E2E pass rate and mean time to repair
-- performance percentiles and error rate
-- deployment frequency and change failure rate
-- synthetic check status for critical user journeys
-- backend telemetry such as latency, saturation, and downstream dependency health
-
-## What To Automate
-
-Automate flows that are business-critical, repeat often, and have deterministic outcomes. Avoid automating flows that are highly visual, too volatile, or cheaper to cover with lower-level tests.
-
-Functional testing owns correctness and workflow behavior. Performance testing owns latency, throughput, concurrency behavior, and degradation patterns under load. When a scenario needs both, split the intent: validate correctness first, then stress the same contract with performance tooling.
-
-## E2E Coverage Plan
-
-See e2e/docs/test-plan.md for the broader SauceDemo coverage matrix and the reasoning behind the added test areas.
-
+- UI artifacts are stored in `e2e/artifacts/`
+- k6 artifacts are stored in `lt/artifacts/k6/`
+- Load testing is manual by default to avoid hitting a third-party service on every push

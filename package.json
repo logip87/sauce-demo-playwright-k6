@@ -20,8 +20,7 @@
     "e2e:test:headed": "npm run test:headed --workspace e2e",
     "e2e:report:html": "npm run report:html --workspace e2e",
     "e2e:report:allure": "npm run report:allure --workspace e2e",
-    "lt:test": "npm run test --workspace lt",
-    "lt:test:grafana": "npm run test:grafana --workspace lt"
+    "lt:test": "npm run test --workspace lt"
   },
   "devDependencies": {
     "@types/node": "^22.13.14",

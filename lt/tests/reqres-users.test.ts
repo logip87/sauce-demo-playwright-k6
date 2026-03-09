@@ -1,4 +1,5 @@
 import http from 'k6/http';
+import exec from 'k6/execution';
 import { check, sleep } from 'k6';
 import type { Options } from 'k6/options';
 
@@ -9,6 +10,8 @@ const duration = __ENV['K6_DURATION'] ?? '2m';
 const targetUrl = __ENV['K6_TARGET_URL'] ?? 'https://reqres.in/api/users?page=1';
 const targetRps = Number(__ENV['K6_TARGET_RPS'] ?? 100);
 const apiKey = __ENV['REQRES_API_KEY'];
+const unexpectedResponseLogLimit = Number(__ENV['K6_UNEXPECTED_RESPONSE_LOG_LIMIT'] ?? 3);
+let hasLoggedUnexpectedResponse = false;
 
 export const options: Options = {
   scenarios: {
@@ -39,6 +42,26 @@ export default function (): void {
       endpoint: 'users-page-1',
     },
   });
+
+  if (response.status !== 200 && !hasLoggedUnexpectedResponse && exec.vu.idInTest <= unexpectedResponseLogLimit) {
+    hasLoggedUnexpectedResponse = true;
+
+    const bodyPreview =
+      typeof response.body === 'string' ? response.body.replace(/\s+/gu, ' ').slice(0, 240) : '';
+
+    console.error(
+      JSON.stringify({
+        type: 'unexpected_response_sample',
+        vu: exec.vu.idInTest,
+        iteration: exec.scenario.iterationInTest,
+        status: response.status,
+        url: response.url,
+        hasApiKey: Boolean(apiKey),
+        contentType: response.headers['Content-Type'] ?? response.headers['content-type'] ?? 'unknown',
+        bodyPreview,
+      }),
+    );
+  }
 
   check(response, {
     'status is 200': (res) => res.status === 200,

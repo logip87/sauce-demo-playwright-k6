@@ -4,7 +4,6 @@
   "version": "0.1.0",
   "scripts": {
     "test": "node ./scripts/run-k6.mjs",
-    "test:grafana": "node ./scripts/run-k6.mjs --grafana",
     "typecheck": "tsc -p tsconfig.json --noEmit"
   },
   "devDependencies": {
