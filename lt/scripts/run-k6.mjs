@@ -9,6 +9,8 @@ const projectRoot = path.resolve(__dirname, '..');
 const artifactDir = path.join(projectRoot, 'artifacts', 'k6');
 const scriptPath = path.join(projectRoot, 'tests', 'reqres-users.test.ts');
 const useGrafanaCloud = process.argv.includes('--grafana') || Boolean(process.env.K6_CLOUD_TOKEN);
+const targetUrl = process.env.K6_TARGET_URL ?? 'https://reqres.in/api/users?page=1';
+const requiresReqresApiKey = /^https:\/\/reqres\.in\/api\//u.test(targetUrl);
 
 const importSpecifierPatterns = [
   /(?:import|export)\s+(?:[^'"]*?\s+from\s+)?['"]([^'"]+)['"]/gu,
@@ -85,6 +87,12 @@ const validateK6LocalImports = () => {
 validateK6LocalImports();
 
 mkdirSync(artifactDir, { recursive: true });
+
+if (requiresReqresApiKey && !process.env.REQRES_API_KEY) {
+  console.error('REQRES_API_KEY is required for load tests against ReqRes API endpoints.');
+  console.error('Set REQRES_API_KEY locally and add the same secret in GitHub Actions before running this scenario.');
+  process.exit(1);
+}
 
 const commandArgs = useGrafanaCloud
   ? ['cloud', 'run', '--local-execution', scriptPath]

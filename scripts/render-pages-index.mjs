@@ -5,11 +5,13 @@ import process from 'node:process';
 const siteDir = path.resolve(process.cwd(), process.argv[2] ?? 'site');
 
 const e2eReportPath = path.join(siteDir, 'e2e', 'index.html');
+const e2eArchivesPath = path.join(siteDir, 'e2e', 'runs', 'index.html');
 const loadTestDashboardPath = path.join(siteDir, 'lt', 'k6', 'index.html');
 const loadTestMarkdownPath = path.join(siteDir, 'lt', 'k6', 'performance-report.md');
 const loadTestSummaryPath = path.join(siteDir, 'lt', 'k6', 'summary.json');
 
 const hasE2eReport = existsSync(e2eReportPath);
+const hasE2eArchives = existsSync(e2eArchivesPath);
 const hasLoadTestDashboard = existsSync(loadTestDashboardPath);
 const hasLoadTestMarkdown = existsSync(loadTestMarkdownPath);
 const hasLoadTestSummary = existsSync(loadTestSummaryPath);
@@ -174,7 +176,9 @@ const html = `<!doctype html>
           </p>
           ${
             hasE2eReport
-              ? '<p class="status">Published.</p><p class="links"><a href="./e2e/">Open report</a></p>'
+              ? `<p class="status">Published.</p><p class="links"><a href="./e2e/">Open report</a>${
+                  hasE2eArchives ? '<span class="divider">|</span><a href="./e2e/runs/">Archived reports</a>' : ''
+                }</p>`
               : '<p class="status">Not published yet.</p>'
           }
         </article>

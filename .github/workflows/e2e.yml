@@ -113,10 +113,11 @@ jobs:
       - name: Restore Allure history
         shell: bash
         run: |
-          mkdir -p e2e/artifacts/allure-history
-          if [ -f .gh-pages/e2e/allure-history/history.jsonl ]; then
-            cp .gh-pages/e2e/allure-history/history.jsonl e2e/artifacts/allure-history/history.jsonl
-          fi
+          node scripts/prepare-allure-history.mjs \
+            --pages-dir .gh-pages \
+            --archive-dir .allure-pages-state \
+            --history-path e2e/artifacts/allure-history/history.jsonl \
+            --repository "${GITHUB_REPOSITORY}"
 
       - name: Generate Allure report
         run: npm run allure:generate --workspace e2e
@@ -129,11 +130,13 @@ jobs:
             mkdir -p site/lt
             cp -R .gh-pages/lt/. site/lt/
           fi
-          mkdir -p site/e2e/allure-history
-          cp -R e2e/artifacts/allure-report/. site/e2e/
-          if [ -f e2e/artifacts/allure-history/history.jsonl ]; then
-            cp e2e/artifacts/allure-history/history.jsonl site/e2e/allure-history/history.jsonl
-          fi
+          node scripts/publish-allure-site.mjs \
+            --site-dir site \
+            --pages-dir .gh-pages \
+            --archive-dir .allure-pages-state \
+            --report-dir e2e/artifacts/allure-report \
+            --history-path e2e/artifacts/allure-history/history.jsonl \
+            --repository "${GITHUB_REPOSITORY}"
           node scripts/render-pages-index.mjs site
           touch site/.nojekyll
 

@@ -28,7 +28,7 @@ The setup favors deterministic tests, stable selectors, strict TypeScript, and C
 - Playwright browser binaries: `npx playwright install --with-deps chromium`
 - k6 for local load testing
 
-If ReqRes rejects anonymous traffic, provide `REQRES_API_KEY` before running the load test. As of March 9, 2026, ReqRes documents `x-api-key` usage for `/api/*` endpoints.
+ReqRes API endpoints in this assessment require `REQRES_API_KEY`. Set it locally before running the load test, and add the same value as the GitHub Actions secret `REQRES_API_KEY` so the manual `load-test` workflow can authenticate in CI.
 
 ## Install
 
