@@ -1,1 +1,1 @@
-{"id":"8acc8f8ddd4ef66e2562bd175ae890e4","fullName":"auth.spec.ts:21:5","name":"allows standard_user to reach the inventory page","status":"passed","testResultsByEnv":{"default":"d70ec9a3504de308397b43fcfa5a7361"}}
+{"id":"8acc8f8ddd4ef66e2562bd175ae890e4","fullName":"auth.spec.ts:21:5","name":"allows standard_user to reach the inventory page","status":"passed","testResultsByEnv":{"default":"2b5ad30959bac9544b0443f04cd084f4"}}

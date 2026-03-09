@@ -1,1 +1,1 @@
-{"id":"7f38a3d62a9320b43802d91e651748cb","fullName":"inventory.spec.ts:36:5","name":"adds and removes items directly from the inventory list","status":"passed","testResultsByEnv":{"default":"db209a8e81323d0e25e967b979c31f1b"}}
+{"id":"7f38a3d62a9320b43802d91e651748cb","fullName":"inventory.spec.ts:36:5","name":"adds and removes items directly from the inventory list","status":"passed","testResultsByEnv":{"default":"e10c876126aa3dee6cc697816a80992b"}}

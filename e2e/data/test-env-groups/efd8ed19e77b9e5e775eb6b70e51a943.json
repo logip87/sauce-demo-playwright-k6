@@ -1,1 +1,1 @@
-{"id":"efd8ed19e77b9e5e775eb6b70e51a943","fullName":"checkout.spec.ts:75:5","name":"returns to the cart when checkout information is cancelled","status":"passed","testResultsByEnv":{"default":"0deab537b2a2bb46cab7963e9033c611"}}
+{"id":"efd8ed19e77b9e5e775eb6b70e51a943","fullName":"checkout.spec.ts:75:5","name":"returns to the cart when checkout information is cancelled","status":"passed","testResultsByEnv":{"default":"3418e8670c712e667a9439dfc0f9f68c"}}
