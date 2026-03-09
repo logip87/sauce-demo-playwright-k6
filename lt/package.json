@@ -3,7 +3,7 @@
   "private": true,
   "version": "0.1.0",
   "scripts": {
-    "test": "node ./scripts/run-k6.mjs",
+    "test": "node -e \"require('fs').mkdirSync('artifacts/k6', { recursive: true })\" && k6 run ./tests/reqres-users.test.ts",
     "typecheck": "tsc -p tsconfig.json --noEmit"
   },
   "devDependencies": {

@@ -19,7 +19,7 @@ This repository contains two parts of the assignment:
 
 ```bash
 npm install
-npx playwright install chromium
+npx playwright install
 ```
 
 ### Load-Test Environment Variable
@@ -64,13 +64,14 @@ Main test files:
 
 ### Load Testing
 
-- k6 steady-state scenario for `https://reqres.in/api/users?page=1`
-- Configurable runtime through environment variables such as VUs, duration, target URL, and target RPS
+- k6 `constant-arrival-rate` scenario for `https://reqres.in/api/users?page=1`
+- Fixed load profile: 100 requests/second for 2 minutes
+- Only `REQRES_API_KEY` is read from the environment
 - Thresholds for response time and failure rate
 - Automatic artifact generation:
   - `lt/artifacts/k6/summary.json`
   - `lt/artifacts/k6/performance-report.md`
-  - `lt/artifacts/k6/dashboard.html`
+  - `lt/artifacts/k6/dashboard.html` when exported in CI
 
 ### CI/CD
 

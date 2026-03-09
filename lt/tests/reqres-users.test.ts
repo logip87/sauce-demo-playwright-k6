@@ -1,27 +1,35 @@
 import http from 'k6/http';
 import exec from 'k6/execution';
-import { check, sleep } from 'k6';
+import { check } from 'k6';
 import type { Options } from 'k6/options';
 
 import { createSummaryOutputs } from '../src/report.ts';
 
-const vus = Number(__ENV['K6_VUS'] ?? 100);
-const duration = __ENV['K6_DURATION'] ?? '2m';
-const targetUrl = __ENV['K6_TARGET_URL'] ?? 'https://reqres.in/api/users?page=1';
-const targetRps = Number(__ENV['K6_TARGET_RPS'] ?? 100);
-const apiKey = __ENV['REQRES_API_KEY'];
-const unexpectedResponseLogLimit = Number(__ENV['K6_UNEXPECTED_RESPONSE_LOG_LIMIT'] ?? 3);
+const duration = '2m';
+const targetRate = 100;
+const targetUrl = 'https://reqres.in/api/users?page=1';
+const apiKey = __ENV['REQRES_API_KEY'] ?? '';
+const unexpectedResponseLogLimit = 3;
 let hasLoggedUnexpectedResponse = false;
+const preAllocatedVUs = 100;
+const maxVUs = 200;
+
+if (!apiKey) {
+  throw new Error('REQRES_API_KEY is required for the ReqRes load test.');
+}
 
 export const options: Options = {
   scenarios: {
-    steady_state_users: {
-      executor: 'constant-vus',
-      vus,
+    reqres_users_page: {
+      executor: 'constant-arrival-rate',
+      rate: targetRate,
+      timeUnit: '1s',
       duration,
+      preAllocatedVUs,
+      maxVUs,
       gracefulStop: '0s',
       tags: {
-        test_type: 'steady-state',
+        test_type: 'constant-arrival-rate',
       },
     },
   },
@@ -35,7 +43,7 @@ export const options: Options = {
 export default function (): void {
   const response = http.get(targetUrl, {
     headers: {
-      ...(apiKey ? { 'x-api-key': apiKey } : {}),
+      'x-api-key': apiKey,
       'user-agent': 'techlt-qa-assessment-k6/1.0',
     },
     tags: {
@@ -67,15 +75,14 @@ export default function (): void {
     'status is 200': (res) => res.status === 200,
     'body is not empty': (res) => Boolean(res.body),
   });
-
-  sleep(1);
 }
 
 export function handleSummary(data: Parameters<typeof createSummaryOutputs>[0]): Record<string, string> {
   return createSummaryOutputs(data, {
     duration,
-    expectedRequestsPerSecond: targetRps,
+    maxVUs,
+    preAllocatedVUs,
+    targetRate,
     targetUrl,
-    vus,
   });
 }

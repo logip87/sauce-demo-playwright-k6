@@ -8,9 +8,10 @@ interface K6SummaryData {
 
 interface ReportContext {
   duration: string;
-  expectedRequestsPerSecond: number;
+  maxVUs: number;
+  preAllocatedVUs: number;
+  targetRate: number;
   targetUrl: string;
-  vus: number;
 }
 
 const readMetric = (
@@ -29,6 +30,7 @@ export const createPerformanceReport = (
 ): string => {
   const durationMetrics = data.metrics['http_req_duration']?.values ?? {};
   const errorRate = readMetric(data.metrics, 'http_req_failed', 'rate');
+  const droppedIterations = readMetric(data.metrics, 'dropped_iterations', 'count');
   const throughput = readMetric(data.metrics, 'http_reqs', 'rate');
 
   return `# Performance Report
@@ -36,10 +38,11 @@ export const createPerformanceReport = (
 ## Test Setup
 
 - Target URL: ${context.targetUrl}
-- Scenario: ${context.vus} constant virtual users, each looping one request followed by a 1 second think time
-- Intended throughput: about ${context.expectedRequestsPerSecond} requests/second
+- Scenario: constant arrival rate targeting ${context.targetRate} requests/second
+- VU pool: ${context.preAllocatedVUs} pre-allocated VUs, scaling up to ${context.maxVUs} if the target rate needs it
 - Test duration: ${context.duration}
-- Tooling: k6 with TypeScript source and built-in web dashboard export
+- Tooling: k6 with TypeScript source
+- Assumptions: one authenticated GET request per iteration, no client-side think time, ReqRes public API used manually by design
 
 ## Captured Metrics
 
@@ -50,15 +53,17 @@ export const createPerformanceReport = (
 | P99 | ${formatMilliseconds(durationMetrics['p(99)'] ?? 0)} |
 | Error rate | ${formatRate(errorRate)} |
 | Throughput | ${formatRps(throughput)} req/s |
+| Dropped iterations | ${droppedIterations.toFixed(0)} |
 
 ## Interpretation
 
-The scenario is designed to hold a steady 100-user load long enough to smooth out startup noise without being excessive for a public sample API. Two minutes yields roughly twelve thousand requests in the steady state, which is usually enough to make the percentile spread meaningful.
+This scenario is rate-driven rather than concurrency-driven. k6 adds VUs as needed to keep the configured request pace, which makes the achieved throughput and dropped iteration count more useful than a raw VU number when reading the result.
 
-Use the percentile spread to judge consistency:
+Use the results to judge both latency stability and rate sustainability:
 
-- a tight P50 to P95 gap suggests stable handling under constant concurrency
-- a widening P95 to P99 gap suggests tail latency or occasional slow dependencies
+- a tight P50 to P95 gap suggests stable handling at the requested arrival rate
+- if throughput falls noticeably below ${context.targetRate} req/s, the endpoint or VU pool is struggling to keep up
+- dropped iterations mean k6 could not start work fast enough to maintain the configured pace
 - any sustained non-zero error rate should be investigated before tightening thresholds further
 
 ## Potential Optimizations
@@ -66,7 +71,7 @@ Use the percentile spread to judge consistency:
 - Cache or precompute repeated response payloads if this endpoint is fronted by a shared service.
 - Add upstream timeout and retry telemetry so tail latency is attributable.
 - Track saturation signals such as CPU, memory, and downstream wait time alongside k6 metrics.
-- If the endpoint becomes business critical, add service-level objectives for P95 and error rate.
+- If the endpoint becomes business critical, add service-level objectives for both sustained rate and tail latency.
 `;
 };
 

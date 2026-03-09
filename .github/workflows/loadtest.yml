@@ -28,10 +28,10 @@ jobs:
         uses: grafana/setup-k6-action@v1
 
       - name: Typecheck load-test sources
-        run: npm run typecheck --workspace lt
+        working-directory: lt
+        run: npm run typecheck
 
       - name: Validate ReqRes API key
-        if: ${{ startsWith(vars.K6_TARGET_URL || 'https://reqres.in/api/users?page=1', 'https://reqres.in/api/') }}
         shell: bash
         env:
           REQRES_API_KEY: ${{ secrets.REQRES_API_KEY }}
@@ -42,10 +42,14 @@ jobs:
             exit 1
           fi
 
-      - name: Run k6 locally
-        run: npm run lt:test
+      - name: Run k6 load test
+        working-directory: lt
+        run: npm run test
         env:
           REQRES_API_KEY: ${{ secrets.REQRES_API_KEY }}
+          K6_WEB_DASHBOARD: true
+          K6_WEB_DASHBOARD_EXPORT: artifacts/k6/dashboard.html
+          K6_WEB_DASHBOARD_PORT: -1
 
       - name: Upload load-test artifacts
         if: always()
