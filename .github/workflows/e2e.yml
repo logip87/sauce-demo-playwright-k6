@@ -154,7 +154,7 @@ jobs:
             echo "Pages cache already up to date."
           else
             git -C .gh-pages commit -m "chore: sync pages cache"
-            git -C .gh-pages push origin gh-pages
+            git -C .gh-pages push origin HEAD:gh-pages
           fi
 
       - name: Configure GitHub Pages

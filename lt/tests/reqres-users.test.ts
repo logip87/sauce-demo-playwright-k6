@@ -2,7 +2,7 @@ import http from 'k6/http';
 import { check, sleep } from 'k6';
 import type { Options } from 'k6/options';
 
-import { createSummaryOutputs } from '../src/report';
+import { createSummaryOutputs } from '../src/report.ts';
 
 const vus = Number(__ENV['K6_VUS'] ?? 100);
 const duration = __ENV['K6_DURATION'] ?? '2m';
