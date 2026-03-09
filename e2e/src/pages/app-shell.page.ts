@@ -20,12 +20,8 @@ export class AppShellPage extends BasePage {
   constructor(page: Page) {
     super(page);
     this.title = page.getByTestId('title');
-    this.openMenuButton = page.locator('button').filter({
-      has: page.getByTestId('open-menu'),
-    });
-    this.closeMenuButton = page.locator('button').filter({
-      has: page.getByTestId('close-menu'),
-    });
+    this.openMenuButton = page.getByRole('button', { name: 'Open Menu' });
+    this.closeMenuButton = page.getByRole('button', { name: 'Close Menu' });
     this.allItemsSidebarLink = page.getByTestId('inventory-sidebar-link');
     this.aboutSidebarLink = page.getByTestId('about-sidebar-link');
     this.logoutSidebarLink = page.getByTestId('logout-sidebar-link');

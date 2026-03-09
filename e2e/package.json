@@ -6,7 +6,7 @@
     "test": "playwright test",
     "test:headed": "playwright test --headed",
     "report:html": "playwright show-report artifacts/playwright-report",
-    "allure:generate": "allure generate ./artifacts/allure-results --clean",
+    "allure:generate": "allure generate --config ./allurerc.mjs ./artifacts/allure-results",
     "report:allure": "npm run allure:generate && allure open artifacts/allure-report",
     "typecheck": "tsc -p tsconfig.json --noEmit"
   },

@@ -11,6 +11,8 @@ on:
 
 permissions:
   contents: read
+  pages: write
+  id-token: write
 
 jobs:
   k6:
@@ -62,3 +64,139 @@ jobs:
           if [ -f lt/artifacts/k6/performance-report.md ]; then
             cat lt/artifacts/k6/performance-report.md >> "$GITHUB_STEP_SUMMARY"
           fi
+
+  publish-k6-report:
+    if: always()
+    needs:
+      - k6
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      pages: write
+      id-token: write
+    concurrency:
+      group: github-pages
+      cancel-in-progress: false
+    environment:
+      name: github-pages
+      url: ${{ steps.deploy.outputs.page_url }}
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Checkout existing Pages branch
+        uses: actions/checkout@v4
+        continue-on-error: true
+        with:
+          ref: gh-pages
+          path: .gh-pages
+
+      - name: Initialize Pages cache branch
+        shell: bash
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+        run: |
+          mkdir -p .gh-pages
+          if [ ! -d .gh-pages/.git ]; then
+            git init .gh-pages
+            git -C .gh-pages checkout --orphan gh-pages
+          fi
+          git -C .gh-pages remote add origin "https://x-access-token:${GITHUB_TOKEN}@github.com/${GITHUB_REPOSITORY}.git" 2>/dev/null || true
+          git -C .gh-pages remote set-url origin "https://x-access-token:${GITHUB_TOKEN}@github.com/${GITHUB_REPOSITORY}.git"
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+
+      - name: Download load-test artifacts
+        continue-on-error: true
+        uses: actions/download-artifact@v4
+        with:
+          name: lt-artifacts
+          path: lt/artifacts/k6
+
+      - name: Check for exported k6 dashboard
+        id: dashboard
+        shell: bash
+        run: |
+          if [ -f lt/artifacts/k6/dashboard.html ]; then
+            echo "has_dashboard=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "has_dashboard=false" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Prepare GitHub Pages artifact
+        if: steps.dashboard.outputs.has_dashboard == 'true'
+        shell: bash
+        run: |
+          mkdir -p site
+          if [ -d .gh-pages/e2e ]; then
+            mkdir -p site/e2e
+            cp -R .gh-pages/e2e/. site/e2e/
+          fi
+          if [ -d .gh-pages/lt ]; then
+            mkdir -p site/lt
+            cp -R .gh-pages/lt/. site/lt/
+          fi
+          mkdir -p site/lt/k6
+          cp lt/artifacts/k6/dashboard.html site/lt/k6/index.html
+          if [ -f lt/artifacts/k6/performance-report.md ]; then
+            cp lt/artifacts/k6/performance-report.md site/lt/k6/performance-report.md
+          fi
+          if [ -f lt/artifacts/k6/summary.json ]; then
+            cp lt/artifacts/k6/summary.json site/lt/k6/summary.json
+          fi
+          node scripts/render-pages-index.mjs site
+          touch site/.nojekyll
+
+      - name: Update Pages cache branch
+        if: steps.dashboard.outputs.has_dashboard == 'true'
+        shell: bash
+        run: |
+          git -C .gh-pages config user.name "github-actions[bot]"
+          git -C .gh-pages config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          shopt -s dotglob nullglob
+          for entry in .gh-pages/*; do
+            if [ "$(basename "$entry")" != ".git" ]; then
+              rm -rf "$entry"
+            fi
+          done
+          cp -R site/. .gh-pages/
+          git -C .gh-pages add --all
+          if git -C .gh-pages diff --cached --quiet; then
+            echo "Pages cache already up to date."
+          else
+            git -C .gh-pages commit -m "chore: sync pages cache"
+            git -C .gh-pages push origin gh-pages
+          fi
+
+      - name: Configure GitHub Pages
+        if: steps.dashboard.outputs.has_dashboard == 'true'
+        uses: actions/configure-pages@v5
+
+      - name: Upload Pages artifact
+        if: steps.dashboard.outputs.has_dashboard == 'true'
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: site
+
+      - name: Deploy Pages artifact
+        if: steps.dashboard.outputs.has_dashboard == 'true'
+        id: deploy
+        uses: actions/deploy-pages@v4
+
+      - name: Publish report links to workflow run
+        if: steps.dashboard.outputs.has_dashboard == 'true'
+        shell: bash
+        run: |
+          {
+            echo ""
+            echo "## Published Reports"
+            echo ""
+            echo "- GitHub Pages hub: ${{ steps.deploy.outputs.page_url }}"
+            echo "- k6 dashboard: ${{ steps.deploy.outputs.page_url }}/lt/k6/"
+          } >> "$GITHUB_STEP_SUMMARY"

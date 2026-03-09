@@ -75,7 +75,7 @@ test('logs out through the side menu', async ({ appShellPage, loginPage }) => {
   await loginPage.expectReady();
 });
 
-test('resets the app state through the side menu', async ({ appShellPage, inventoryPage }) => {
+test('resets the app state through the side menu', async ({ appShellPage, cartPage, inventoryPage }) => {
   await inventoryPage.addProductToCart(products.backpack);
   await appShellPage.expectCartCount(1);
 
@@ -83,5 +83,10 @@ test('resets the app state through the side menu', async ({ appShellPage, invent
   await appShellPage.closeMenu();
 
   await appShellPage.expectCartEmpty();
+  await appShellPage.openCart();
+  await cartPage.expectLoaded();
+  await cartPage.expectProductNotInCart(products.backpack);
+  await cartPage.continueShopping();
+  await inventoryPage.expectLoaded();
   await inventoryPage.expectProductReadyToAdd(products.backpack);
 });

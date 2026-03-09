@@ -58,6 +58,11 @@ npm run lt:test:grafana
 - `lt/artifacts/k6/performance-report.md`
 - `lt/artifacts/k6/dashboard.html`
 
+The GitHub Pages site publishes a shared report hub at the repository Pages URL, with:
+
+- Playwright Allure under `/e2e/`
+- k6 HTML dashboard under `/lt/k6/`
+
 ## Design Decisions
 
 - Page Object Model: locators are declared once as `readonly` properties, then reused in action methods and assertions.
@@ -71,7 +76,7 @@ npm run lt:test:grafana
 
 Playwright runs on pull requests and on pushes to `main`. The workflow uploads artifacts on every run and deploys the Allure v3 report to GitHub Pages for non-PR events.
 
-Load testing is a manual pipeline by default. That is intentional: the target is a shared third-party endpoint, so steady-state tests should be opt-in rather than triggered on every commit.
+Load testing is a manual pipeline by default. That is intentional: the target is a shared third-party endpoint, so steady-state tests should be opt-in rather than triggered on every commit. When the workflow finishes with an exported dashboard, it publishes the latest k6 HTML report to the shared GitHub Pages site without overwriting the e2e report.
 
 ## Failure Notifications
 

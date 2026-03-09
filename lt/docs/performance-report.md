@@ -16,3 +16,7 @@ For a public sample API, the goal is to gather stable percentile data without ru
 ## Current Validation Gap
 
 This workspace did not execute the k6 test because `k6` is not installed locally. Once `npm run lt:test` or the GitHub Actions load-test workflow runs, the generated markdown report becomes the authoritative artifact for captured metrics and interpretation.
+
+## GitHub Pages Publishing
+
+The manual `load-test` GitHub Actions workflow uploads the exported `dashboard.html` artifact to the repository GitHub Pages site under `/lt/k6/`. It also keeps `performance-report.md` and `summary.json` beside the dashboard for quick drill-down from the shared reports hub.

@@ -59,6 +59,13 @@ jobs:
     needs:
       - test
     runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      pages: write
+      id-token: write
+    concurrency:
+      group: github-pages
+      cancel-in-progress: false
     environment:
       name: github-pages
       url: ${{ steps.deploy.outputs.page_url }}
@@ -75,6 +82,19 @@ jobs:
         with:
           ref: gh-pages
           path: .gh-pages
+
+      - name: Initialize Pages cache branch
+        shell: bash
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+        run: |
+          mkdir -p .gh-pages
+          if [ ! -d .gh-pages/.git ]; then
+            git init .gh-pages
+            git -C .gh-pages checkout --orphan gh-pages
+          fi
+          git -C .gh-pages remote add origin "https://x-access-token:${GITHUB_TOKEN}@github.com/${GITHUB_REPOSITORY}.git" 2>/dev/null || true
+          git -C .gh-pages remote set-url origin "https://x-access-token:${GITHUB_TOKEN}@github.com/${GITHUB_REPOSITORY}.git"
 
       - name: Setup Node.js
         uses: actions/setup-node@v4
@@ -94,8 +114,8 @@ jobs:
         shell: bash
         run: |
           mkdir -p e2e/artifacts/allure-history
-          if [ -f .gh-pages/allure-history/history.jsonl ]; then
-            cp .gh-pages/allure-history/history.jsonl e2e/artifacts/allure-history/history.jsonl
+          if [ -f .gh-pages/e2e/allure-history/history.jsonl ]; then
+            cp .gh-pages/e2e/allure-history/history.jsonl e2e/artifacts/allure-history/history.jsonl
           fi
 
       - name: Generate Allure report
@@ -104,12 +124,38 @@ jobs:
       - name: Prepare GitHub Pages artifact
         shell: bash
         run: |
-          mkdir -p site/allure-history
-          cp -R e2e/artifacts/allure-report/. site/
-          if [ -f e2e/artifacts/allure-history/history.jsonl ]; then
-            cp e2e/artifacts/allure-history/history.jsonl site/allure-history/history.jsonl
+          mkdir -p site
+          if [ -d .gh-pages/lt ]; then
+            mkdir -p site/lt
+            cp -R .gh-pages/lt/. site/lt/
           fi
+          mkdir -p site/e2e/allure-history
+          cp -R e2e/artifacts/allure-report/. site/e2e/
+          if [ -f e2e/artifacts/allure-history/history.jsonl ]; then
+            cp e2e/artifacts/allure-history/history.jsonl site/e2e/allure-history/history.jsonl
+          fi
+          node scripts/render-pages-index.mjs site
           touch site/.nojekyll
+
+      - name: Update Pages cache branch
+        shell: bash
+        run: |
+          git -C .gh-pages config user.name "github-actions[bot]"
+          git -C .gh-pages config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          shopt -s dotglob nullglob
+          for entry in .gh-pages/*; do
+            if [ "$(basename "$entry")" != ".git" ]; then
+              rm -rf "$entry"
+            fi
+          done
+          cp -R site/. .gh-pages/
+          git -C .gh-pages add --all
+          if git -C .gh-pages diff --cached --quiet; then
+            echo "Pages cache already up to date."
+          else
+            git -C .gh-pages commit -m "chore: sync pages cache"
+            git -C .gh-pages push origin gh-pages
+          fi
 
       - name: Configure GitHub Pages
         uses: actions/configure-pages@v5
