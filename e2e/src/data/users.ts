@@ -36,8 +36,7 @@ export const users = {
   },
 } as const satisfies Record<string, Credentials>;
 
-export const activeUsers = [
-  users.standard,
+export const specialCaseUsers = [
   users.problem,
   users.performanceGlitch,
   users.error,

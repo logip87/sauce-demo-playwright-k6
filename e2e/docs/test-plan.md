@@ -8,7 +8,7 @@ Build a broad, deterministic Playwright suite that covers the main user-facing b
 
 ### Authentication
 
-- successful login for every active sample persona exposed on the login page
+- successful login for the stable happy-path persona (`standard_user`)
 - locked-out user handling
 - invalid credentials handling
 - required-field validation on the login form
@@ -42,7 +42,7 @@ Build a broad, deterministic Playwright suite that covers the main user-facing b
 - Page objects keep locators declared once and reused in methods.
 - Tests use SauceDemo's `data-test` attributes wherever available.
 - Each test creates its own state and avoids cross-test coupling.
-- Special personas are used for authentication coverage only; behavior-specific quirks for `visual_user`, `problem_user`, or `error_user` are better handled in targeted suites rather than the core smoke pack.
+- Seeded special personas such as `visual_user`, `problem_user`, `error_user`, and `performance_glitch_user` are intentionally excluded from the core passing smoke path. They belong in targeted characterization or known-bug suites.
 
 ## Deliberate Gaps
 

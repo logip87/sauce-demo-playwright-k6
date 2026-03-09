@@ -1,17 +1,15 @@
 import { expect, type Locator, type Page } from '@playwright/test';
 
 import type { Product } from '../data/catalog';
+import { AppShellPage } from './app-shell.page';
 
-export class CartPage {
-  readonly page: Page;
-  readonly title: Locator;
+export class CartPage extends AppShellPage {
   readonly cartList: Locator;
   readonly continueShoppingButton: Locator;
   readonly checkoutButton: Locator;
 
   constructor(page: Page) {
-    this.page = page;
-    this.title = page.getByTestId('title');
+    super(page);
     this.cartList = page.getByTestId('cart-list');
     this.continueShoppingButton = page.getByTestId('continue-shopping');
     this.checkoutButton = page.getByTestId('checkout');
@@ -28,9 +26,9 @@ export class CartPage {
   }
 
   async expectLoaded(): Promise<void> {
-    await expect(this.page).toHaveURL(/cart.html$/);
-    await expect(this.title).toHaveText('Your Cart');
-    await expect(this.cartList).toBeVisible();
+    await this.expectCurrentUrl(/cart.html$/);
+    await this.expectPageTitle('Your Cart');
+    await this.expectVisible(this.cartList);
   }
 
   async expectProductsInCart(products: readonly Product[]): Promise<void> {

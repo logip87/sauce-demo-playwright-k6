@@ -2,10 +2,9 @@ import { expect, type Locator, type Page } from '@playwright/test';
 
 import type { Product } from '../data/catalog';
 import { parseCurrency } from '../utils/currency';
+import { AppShellPage } from './app-shell.page';
 
-export class InventoryPage {
-  readonly page: Page;
-  readonly title: Locator;
+export class InventoryPage extends AppShellPage {
   readonly inventoryContainer: Locator;
   readonly inventoryItems: Locator;
   readonly inventoryItemNames: Locator;
@@ -13,8 +12,7 @@ export class InventoryPage {
   readonly sortDropdown: Locator;
 
   constructor(page: Page) {
-    this.page = page;
-    this.title = page.getByTestId('title');
+    super(page);
     this.inventoryContainer = page.getByTestId('inventory-container');
     this.inventoryItems = page.getByTestId('inventory-item');
     this.inventoryItemNames = page.getByTestId('inventory-item-name');
@@ -35,9 +33,9 @@ export class InventoryPage {
   }
 
   async expectLoaded(): Promise<void> {
-    await expect(this.page).toHaveURL(/inventory.html$/);
-    await expect(this.title).toHaveText('Products');
-    await expect(this.inventoryContainer).toBeVisible();
+    await this.expectCurrentUrl(/inventory.html$/);
+    await this.expectPageTitle('Products');
+    await this.expectVisible(this.inventoryContainer);
   }
 
   async expectCatalogVisible(products: readonly Product[]): Promise<void> {

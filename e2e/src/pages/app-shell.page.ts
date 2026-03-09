@@ -1,9 +1,10 @@
 import { expect, type Locator, type Page } from '@playwright/test';
 
 import { socialLinks } from '../data/catalog';
+import { BasePage } from './base.page';
 
-export class AppShellPage {
-  readonly page: Page;
+export class AppShellPage extends BasePage {
+  readonly title: Locator;
   readonly openMenuButton: Locator;
   readonly closeMenuButton: Locator;
   readonly allItemsSidebarLink: Locator;
@@ -17,7 +18,8 @@ export class AppShellPage {
   readonly linkedinFooterLink: Locator;
 
   constructor(page: Page) {
-    this.page = page;
+    super(page);
+    this.title = page.getByTestId('title');
     this.openMenuButton = page.locator('button').filter({
       has: page.getByTestId('open-menu'),
     });
@@ -48,7 +50,7 @@ export class AppShellPage {
   async logout(): Promise<void> {
     await this.openMenu();
     await this.logoutSidebarLink.click();
-    await expect(this.page).toHaveURL(/\/$/);
+    await this.expectCurrentUrl(/\/$/);
   }
 
   async resetAppState(): Promise<void> {
@@ -77,5 +79,9 @@ export class AppShellPage {
     await expect(this.twitterFooterLink).toHaveAttribute('href', socialLinks.twitter);
     await expect(this.facebookFooterLink).toHaveAttribute('href', socialLinks.facebook);
     await expect(this.linkedinFooterLink).toHaveAttribute('href', socialLinks.linkedin);
+  }
+
+  protected async expectPageTitle(expectedTitle: string): Promise<void> {
+    await expect(this.title).toHaveText(expectedTitle);
   }
 }

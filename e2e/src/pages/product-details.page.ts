@@ -1,9 +1,9 @@
 import { expect, type Locator, type Page } from '@playwright/test';
 
 import type { Product } from '../data/catalog';
+import { AppShellPage } from './app-shell.page';
 
-export class ProductDetailsPage {
-  readonly page: Page;
+export class ProductDetailsPage extends AppShellPage {
   readonly name: Locator;
   readonly description: Locator;
   readonly price: Locator;
@@ -12,7 +12,7 @@ export class ProductDetailsPage {
   readonly backToProductsButton: Locator;
 
   constructor(page: Page) {
-    this.page = page;
+    super(page);
     this.name = page.getByTestId('inventory-item-name');
     this.description = page.getByTestId('inventory-item-desc');
     this.price = page.getByTestId('inventory-item-price');
@@ -22,7 +22,7 @@ export class ProductDetailsPage {
   }
 
   async expectLoaded(product: Product): Promise<void> {
-    await expect(this.page).toHaveURL(new RegExp(`inventory-item\\.html\\?id=${product.id}$`));
+    await this.expectCurrentUrl(new RegExp(`inventory-item\\.html\\?id=${product.id}$`));
     await expect(this.name).toHaveText(product.name);
   }
 

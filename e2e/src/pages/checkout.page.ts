@@ -3,6 +3,7 @@ import { expect, type Locator, type Page } from '@playwright/test';
 import type { Product } from '../data/catalog';
 import type { CheckoutDetails } from '../data/checkout';
 import { formatCurrency, parseCurrency } from '../utils/currency';
+import { AppShellPage } from './app-shell.page';
 
 export interface CheckoutTotals {
   itemTotal: number;
@@ -10,9 +11,7 @@ export interface CheckoutTotals {
   total: number;
 }
 
-export class CheckoutPage {
-  readonly page: Page;
-  readonly title: Locator;
+export class CheckoutPage extends AppShellPage {
   readonly errorBanner: Locator;
   readonly firstNameInput: Locator;
   readonly lastNameInput: Locator;
@@ -30,8 +29,7 @@ export class CheckoutPage {
   readonly backHomeButton: Locator;
 
   constructor(page: Page) {
-    this.page = page;
-    this.title = page.getByTestId('title');
+    super(page);
     this.errorBanner = page.getByTestId('error');
     this.firstNameInput = page.getByTestId('firstName');
     this.lastNameInput = page.getByTestId('lastName');
@@ -56,9 +54,9 @@ export class CheckoutPage {
   }
 
   async expectInformationStep(): Promise<void> {
-    await expect(this.page).toHaveURL(/checkout-step-one.html$/);
-    await expect(this.title).toHaveText('Checkout: Your Information');
-    await expect(this.firstNameInput).toBeVisible();
+    await this.expectCurrentUrl(/checkout-step-one.html$/);
+    await this.expectPageTitle('Checkout: Your Information');
+    await this.expectVisible(this.firstNameInput);
   }
 
   async continueWith(details: CheckoutDetails): Promise<void> {
@@ -81,9 +79,9 @@ export class CheckoutPage {
   }
 
   async expectOverviewStep(): Promise<void> {
-    await expect(this.page).toHaveURL(/checkout-step-two.html$/);
-    await expect(this.title).toHaveText('Checkout: Overview');
-    await expect(this.finishButton).toBeVisible();
+    await this.expectCurrentUrl(/checkout-step-two.html$/);
+    await this.expectPageTitle('Checkout: Overview');
+    await this.expectVisible(this.finishButton);
   }
 
   async expectOverviewProducts(products: readonly Product[]): Promise<void> {
@@ -120,8 +118,8 @@ export class CheckoutPage {
   }
 
   async expectCompleteStep(): Promise<void> {
-    await expect(this.page).toHaveURL(/checkout-complete.html$/);
-    await expect(this.title).toHaveText('Checkout: Complete!');
+    await this.expectCurrentUrl(/checkout-complete.html$/);
+    await this.expectPageTitle('Checkout: Complete!');
     await expect(this.completeHeader).toHaveText('Thank you for your order!');
     await expect(this.completeText).toContainText('Your order has been dispatched');
   }

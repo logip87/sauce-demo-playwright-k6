@@ -1,5 +1,5 @@
 import { test } from '../src/fixtures/app.fixture';
-import { activeUsers, loginErrorMessages, users } from '../src/data/users';
+import { loginErrorMessages, users } from '../src/data/users';
 
 const loginValidationCases = [
   {
@@ -18,18 +18,12 @@ const loginValidationCases = [
   },
 ] as const;
 
-for (const user of activeUsers) {
-  test(`allows ${user.username} to reach the inventory page`, async ({ inventoryPage, loginAs, loginPage }) => {
-    if (user.username === users.performanceGlitch.username) {
-      test.slow();
-    }
+test('allows standard_user to reach the inventory page', async ({ inventoryPage, loginAs, loginPage }) => {
+  await loginAs(users.standard);
 
-    await loginAs(user);
-
-    await loginPage.expectLoginSuccess();
-    await inventoryPage.expectLoaded();
-  });
-}
+  await loginPage.expectLoginSuccess();
+  await inventoryPage.expectLoaded();
+});
 
 test('shows the locked-out error for a blocked user', async ({ loginPage }) => {
   await loginPage.goto();

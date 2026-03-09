@@ -1,30 +1,28 @@
 import { expect, type Locator, type Page } from '@playwright/test';
 
 import type { Credentials } from '../data/users';
+import { RoutablePage } from './routable.page';
 
-export class LoginPage {
-  readonly page: Page;
+export class LoginPage extends RoutablePage {
   readonly usernameInput: Locator;
   readonly passwordInput: Locator;
   readonly loginButton: Locator;
   readonly errorBanner: Locator;
 
   constructor(page: Page) {
-    this.page = page;
+    super(page);
     this.usernameInput = page.getByTestId('username');
     this.passwordInput = page.getByTestId('password');
     this.loginButton = page.getByTestId('login-button');
     this.errorBanner = page.getByTestId('error');
   }
 
-  async goto(): Promise<void> {
-    await this.page.goto('/');
-    await this.expectReady();
+  protected override get path(): string {
+    return '/';
   }
 
-  async expectReady(): Promise<void> {
-    await expect(this.usernameInput).toBeVisible();
-    await expect(this.loginButton).toBeVisible();
+  protected override get readyLocators(): readonly Locator[] {
+    return [this.usernameInput, this.loginButton];
   }
 
   async fillCredentials(credentials: Partial<Credentials>): Promise<void> {
@@ -42,7 +40,7 @@ export class LoginPage {
   }
 
   async expectLoginSuccess(): Promise<void> {
-    await expect(this.page).toHaveURL(/inventory.html$/);
+    await this.expectCurrentUrl(/inventory.html$/);
   }
 
   async expectError(message: string): Promise<void> {
