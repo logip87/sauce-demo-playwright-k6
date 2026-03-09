@@ -1,0 +1,113 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Archived Allure Reports</title>
+    <style>
+      :root {
+        color-scheme: light;
+        --background: #f7f3ea;
+        --panel: rgba(255, 252, 245, 0.94);
+        --panel-border: rgba(37, 52, 63, 0.14);
+        --text: #1f2a33;
+        --muted: #55636f;
+        --accent: #0f766e;
+        --shadow: 0 20px 45px rgba(31, 42, 51, 0.12);
+      }
+
+      * {
+        box-sizing: border-box;
+      }
+
+      body {
+        margin: 0;
+        min-height: 100vh;
+        font-family: "Segoe UI", "Trebuchet MS", sans-serif;
+        color: var(--text);
+        background:
+          radial-gradient(circle at top left, rgba(15, 118, 110, 0.12), transparent 24rem),
+          linear-gradient(180deg, #faf7f0 0%, var(--background) 100%);
+      }
+
+      main {
+        width: min(52rem, calc(100% - 2rem));
+        margin: 0 auto;
+        padding: 2.5rem 0 3.5rem;
+      }
+
+      h1 {
+        margin: 0 0 0.75rem;
+        font-size: clamp(2rem, 6vw, 3.5rem);
+        line-height: 0.95;
+        letter-spacing: -0.05em;
+      }
+
+      p {
+        margin: 0;
+        line-height: 1.6;
+        color: var(--muted);
+      }
+
+      .panel {
+        margin-top: 1.75rem;
+        padding: 1.25rem;
+        border: 1px solid var(--panel-border);
+        border-radius: 1.25rem;
+        background: var(--panel);
+        box-shadow: var(--shadow);
+      }
+
+      ul {
+        list-style: none;
+        padding: 0;
+        margin: 0;
+      }
+
+      li {
+        display: flex;
+        flex-wrap: wrap;
+        justify-content: space-between;
+        gap: 0.75rem;
+        padding: 0.85rem 0;
+        border-top: 1px solid rgba(37, 52, 63, 0.1);
+      }
+
+      li:first-child {
+        padding-top: 0;
+        border-top: 0;
+      }
+
+      a {
+        color: var(--accent);
+        font-weight: 600;
+        text-decoration: none;
+      }
+
+      a:hover,
+      a:focus-visible {
+        text-decoration: underline;
+      }
+
+      .empty {
+        color: var(--muted);
+      }
+    </style>
+  </head>
+  <body>
+    <main>
+      <h1>Archived Allure reports.</h1>
+      <p>Browse older E2E report snapshots that back the history links inside the latest report.</p>
+      <section class="panel">
+        <ul><li>
+          <a href="./4ea6d8b9-5ddf-44a1-b214-b4be1aafd0e8/">SauceDemo E2E</a>
+          <span>9 Mar 2026, 18:41:13</span>
+        </li>
+<li>
+          <a href="./12cf33b6-7931-4728-9884-8d494bee5f2f/">SauceDemo E2E</a>
+          <span>9 Mar 2026, 17:52:46</span>
+        </li></ul>
+      </section>
+    </main>
+  </body>
+</html>
